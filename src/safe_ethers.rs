@@ -55,11 +55,9 @@ impl SafeEthers {
                     e
                 );
 
-                return None;
+                None
             }
-            Ok(option) => {
-                return option;
-            }
+            Ok(option) => option,
         }
     }
 
@@ -78,11 +76,9 @@ impl SafeEthers {
                     e
                 );
 
-                return None;
+                None
             }
-            Ok(option) => {
-                return option;
-            }
+            Ok(option) => option,
         }
     }
 
@@ -105,8 +101,8 @@ impl SafeEthers {
             .await;
 
         match support_interface_result {
-            Err(e) => return self.proc_support_interface_error(e, nft_type, contract_address),
-            Ok(o) => return Ok(o),
+            Err(e) => self.proc_support_interface_error(e, nft_type, contract_address),
+            Ok(o) => Ok(o),
         }
     }
     // if this returns Ok, do check for erc11155 too, if this retursns Err, don't do check for erc1155
@@ -122,7 +118,7 @@ impl SafeEthers {
                 contract_address,
                 error_string);
 
-        return Err(anyhow!("no supportInterface"));
+        Err(anyhow!("no supportInterface"))
     }
     pub fn proc_support_interface_error(
         &mut self,
@@ -140,40 +136,28 @@ impl SafeEthers {
                     || e.to_string()
                         == "(code: -32000, message: execution reverted, data: None)" =>
             {
-                return self.handle_no_support_interface_error(
-                    nft_type,
-                    contract_address,
-                    e.to_string(),
-                );
+                self.handle_no_support_interface_error(nft_type, contract_address, e.to_string())
             }
             // this error also means not having supportInterface. e.g :0x33dc5152d7590f99b222bd5891defdcd89c9370e
             ContractError::AbiError(AbiError::DecodingError(Error::InvalidName(e))) => {
-                return self.handle_no_support_interface_error(
-                    nft_type,
-                    contract_address,
-                    e.to_string(),
-                );
+                self.handle_no_support_interface_error(nft_type, contract_address, e)
             }
             // this error also means not having supportInterface. e.g :0xc3f2b402d2616d51109308ce80f6f209be270115
             ContractError::MiddlewareError(ProviderError::JsonRpcClientError(e))
                 if &(e.to_string())[0..65]
                     == "(code: 3, message: execution reverted: Can't send to 0x00 address" =>
             {
-                return self.handle_no_support_interface_error(
-                    nft_type,
-                    contract_address,
-                    e.to_string(),
-                );
+                self.handle_no_support_interface_error(nft_type, contract_address, e.to_string())
             }
             //other error e.g:node is not responsing
             other_error => {
                 tracing::error!("{} : Unexpected error occured, when calling supportsInterface with {} of contract {:#x} : {}",
-                self.chain_name,
+                 self.chain_name,
                 nft_type.to_string(),
                 contract_address,
                 other_error);
 
-                return Ok(false);
+                Ok(false)
             }
         }
     }

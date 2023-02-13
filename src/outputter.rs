@@ -16,7 +16,7 @@ impl Outputter {
 
     pub fn write(&mut self, line: String) -> Result<()> {
         let line_with_break = line + "\n";
-        self.buff_writer.write(line_with_break.as_bytes())?;
+        self.buff_writer.write_all(line_with_break.as_bytes())?;
 
         self.buff_writer.flush()?;
 

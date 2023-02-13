@@ -53,7 +53,7 @@ async fn main() -> anyhow::Result<()> {
     for block_number in setting.from..setting.to + 1 {
         let found_contracts = getter.find(block_number).await;
 
-        if found_contracts.len() != 0 {
+        if !found_contracts.is_empty() {
             output(&mut outputter, found_contracts, &setting.format)?;
         }
     }
