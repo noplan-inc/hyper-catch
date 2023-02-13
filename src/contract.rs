@@ -3,13 +3,7 @@ use serde::{Deserialize, Serialize};
 // type InterfaceIds = Vec<String>;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct InterfaceIds(Vec<String>);
-
-impl InterfaceIds {
-    pub fn new(ids: Vec<String>) -> Self {
-        Self(ids)
-    }
-}
+pub struct InterfaceIds(pub Vec<String>);
 
 impl std::fmt::Display for InterfaceIds {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -29,13 +23,14 @@ impl std::fmt::Display for InterfaceIds {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Contract {
-    pub block_height: u64,
+    pub block_number: u64,
     pub address: String,
     pub interface_ids: InterfaceIds,
 }
 
 #[cfg(test)]
 mod test {
+
     use crate::contract::InterfaceIds;
 
     use super::Contract;
@@ -43,8 +38,9 @@ mod test {
     #[test]
     fn to_json() {
         let c = Contract {
-            block_height: 1,
-            address: "0x0000000000000000000000000000000000000000".to_string(),
+            block_number: 1,
+            // address: types::H160::from_low_u64_be(0x0000000000000000000000000000000000000000),
+            address: String::from("0x0000000000000000000000000000000000000000"),
             interface_ids: InterfaceIds(vec!["0xffffffff".to_string(), "0x12345678".to_string()]),
         };
 
@@ -55,7 +51,7 @@ mod test {
 
     #[test]
     fn test_interface_ids_fmt() {
-        let ids = InterfaceIds::new(vec!["0xffffffff".to_string(), "0x12345678".to_string()]);
+        let ids = InterfaceIds(vec!["0xffffffff".to_string(), "0x12345678".to_string()]);
         assert_eq!(format!("{}", ids), "[\"0xffffffff\", \"0x12345678\"]");
     }
 }

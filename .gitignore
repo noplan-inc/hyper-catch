@@ -15,4 +15,7 @@ Cargo.lock
 /target
 
 .env
+catch.toml
+ethereum.json
+ethers_log*
 

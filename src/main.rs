@@ -1,25 +1,86 @@
+use clap::Parser;
+use formatter::OutputFormatter;
+use option::{CliOptions, NetworkConfig};
+use std::fs;
+use time::UtcOffset;
+use tracing_subscriber::fmt::time::OffsetTime;
+
 mod contract;
 mod contract_getter;
 mod formatter;
+mod nft_types;
 mod option;
-
-use dotenv::dotenv;
-use ethers_core::{abi::Abi, types::Address};
-use std::env;
+mod outputter;
+mod safe_ethers;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    dotenv().ok();
-    let rpc = env::var("EthMainRpc").expect("EthMainRpc must be set");
-    let getter = contract_getter::NftContractGetter::new(&rpc);
-    let hashmask = "0xC2C747E0F7004F9E8817Db2ca4997657a7746928".parse::<Address>()?;
-    let uniswap = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D".parse::<Address>()?;
+    let args = CliOptions::parse();
 
-    let contract_addresses = vec![hashmask, uniswap];
+    //todo put subscriber into a new another function, but this didn't work https://www.reddit.com/r/rust/comments/uqsfmw/is_there_a_rule_that_tracing_subscriberfmtinit/
+    let offset = UtcOffset::from_hms(9, 0, 0).expect("should get JST offset");
+    let time_format =
+        time::format_description::parse("[year]-[month]-[day] T [hour]:[minute]:[second]")
+            .expect("failed to time offset");
+    let file_appender = tracing_appender::rolling::hourly("./", "ethers_log");
+    let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
 
-    let result = getter.extract_erc721_or_1155(contract_addresses).await;
+    if args.verbose {
+        tracing_subscriber::fmt()
+            .with_timer(OffsetTime::new(offset, time_format))
+            .with_writer(non_blocking)
+            .with_ansi(false)
+            .init();
+    } else {
+        tracing_subscriber::fmt()
+            .with_timer(OffsetTime::new(offset, time_format))
+            .with_writer(non_blocking)
+            .with_max_level(tracing::Level::ERROR)
+            .with_ansi(false)
+            .init();
+    }
 
-    println!("{:?}", result);
+    let config_string: String =
+        fs::read_to_string(args.config).expect("failed to load config file");
+    let setting: NetworkConfig = toml::from_str(&config_string).expect("failed to parse toml");
+
+    let mut getter = contract_getter::NftContractGetter::new(&setting.rpc, setting.name)
+        .await
+        .expect("Invalid RPC endpoint");
+    let mut outputter =
+        outputter::Outputter::new(&setting.output).expect("failed to create outputter");
+
+    for block_number in setting.from..setting.to + 1 {
+        let found_contracts = getter.find(block_number).await;
+
+        if found_contracts.len() != 0 {
+            output(&mut outputter, found_contracts, &setting.format)?;
+        }
+    }
+    print!("done");
+    Ok(())
+}
+
+fn output(
+    outputter: &mut outputter::Outputter,
+    contracts: Vec<contract::Contract>,
+    output_format: &option::OutputFormat,
+) -> anyhow::Result<()> {
+    match output_format {
+        option::OutputFormat::Json => {
+            let formatter = formatter::Json::new();
+            for found_contract in contracts {
+                outputter.write(formatter.format(&found_contract)?)?;
+            }
+        }
+        option::OutputFormat::Csv => {
+            let formatter = formatter::Csv::new();
+            outputter.write(formatter.header()?)?;
+            for found_contract in contracts {
+                outputter.write(formatter.format(&found_contract)?)?;
+            }
+        }
+    }
 
     Ok(())
 }
