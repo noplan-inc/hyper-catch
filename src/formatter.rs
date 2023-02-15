@@ -75,7 +75,7 @@ mod tests {
         };
         assert_eq!(
             csv.format(&c).unwrap(),
-            r#"199, 0x0000000000000000000000000000000000000000, ["0xffffffff", "0x12345678"]"#
+            r#"199, "0x0000000000000000000000000000000000000000", ["0xffffffff", "0x12345678"]"#
                 .to_string()
         );
     }
@@ -101,6 +101,6 @@ mod tests {
             address: String::from("0x0000000000000000000000000000000000000000"),
         };
 
-        assert_eq!(json.format(&c).unwrap(), r#"{"block_height":199,"address":"0x0000000000000000000000000000000000000000","interface_ids":["0xffffffff","0x12345678"]}"#.to_string());
+        assert_eq!(json.format(&c).unwrap(), r#"{"block_number":199,"address":"0x0000000000000000000000000000000000000000","interface_ids":["0xffffffff","0x12345678"]}"#.to_string());
     }
 }

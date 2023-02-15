@@ -46,7 +46,7 @@ mod test {
 
         let str = serde_json::to_string(&c).unwrap();
 
-        assert_eq!(str, "{\"block_height\":1,\"address\":\"0x0000000000000000000000000000000000000000\",\"interface_ids\":[\"0xffffffff\",\"0x12345678\"]}".to_string());
+        assert_eq!(str, "{\"block_number\":1,\"address\":\"0x0000000000000000000000000000000000000000\",\"interface_ids\":[\"0xffffffff\",\"0x12345678\"]}".to_string());
     }
 
     #[test]
