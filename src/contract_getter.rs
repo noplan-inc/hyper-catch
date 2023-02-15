@@ -4,7 +4,7 @@ use crate::nft_types::NftTypes;
 use crate::safe_ethers;
 
 use anyhow::Result;
-use ethers::types;
+use ethers_core::types;
 
 pub struct NftContractGetter {
     pub safe_ethers: safe_ethers::SafeEthers,
@@ -63,7 +63,7 @@ impl NftContractGetter {
     pub async fn extract_nft_contract_addresses(
         &mut self,
         contracts_addresses: Vec<types::H160>,
-    ) -> Vec<(ethers::types::H160, nft_types::NftTypes)> {
+    ) -> Vec<(types::H160, nft_types::NftTypes)> {
         let mut nft_contracts: Vec<(types::H160, nft_types::NftTypes)> = Vec::new();
 
         for contract_address in contracts_addresses {

@@ -3,9 +3,9 @@ use crate::nft_types;
 use anyhow::{anyhow, Result};
 use std::fs;
 
-use ethers::abi;
 use ethers_contract::AbiError;
 use ethers_contract::ContractError;
+use ethers_core::abi;
 use ethers_core::abi::Error;
 use ethers_core::types;
 use ethers_core::types::transaction::response;
