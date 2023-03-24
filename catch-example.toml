@@ -1,0 +1,6 @@
+name = "ethereum"
+rpc="https://eth-mainnet.alchemyapi.io/v2/YOUR_RPC"
+from=11744851
+to=11744951
+output="ethereum.json"
+format="Json"
