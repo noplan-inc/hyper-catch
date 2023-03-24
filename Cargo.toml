@@ -27,5 +27,5 @@ tracing-subscriber = { version="0.3", features = ["local-time"]}
 tracing-appender = "0.2"
 time = "0.3.17"
 toml = "0.5.10"
-
+progress = "0.2"
 

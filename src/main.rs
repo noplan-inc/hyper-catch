@@ -1,6 +1,7 @@
 use clap::Parser;
 use formatter::OutputFormatter;
 use option::{CliOptions, NetworkConfig};
+use progress::Bar;
 use std::fs;
 use time::UtcOffset;
 use tracing_subscriber::fmt::time::OffsetTime;
@@ -50,12 +51,23 @@ async fn main() -> anyhow::Result<()> {
     let mut outputter =
         outputter::Outputter::new(&setting.output).expect("failed to create outputter");
 
+    let mut bar = Bar::new();
+
+    bar.set_job_title("Finding contracts...");
+
     for block_number in setting.from..setting.to + 1 {
         let found_contracts = getter.find(block_number).await;
 
         if !found_contracts.is_empty() {
             output(&mut outputter, found_contracts, &setting.format)?;
         }
+
+        push_progress_bar(
+            &mut bar,
+            block_number as f64,
+            setting.from as f64,
+            setting.to as f64,
+        );
     }
     print!("done");
     Ok(())
@@ -83,4 +95,9 @@ fn output(
     }
 
     Ok(())
+}
+fn push_progress_bar(bar: &mut Bar, current_block_number: f64, from: f64, to: f64) {
+    let processed_percentage = ((current_block_number - from) / (to - from)) * 100.0;
+
+    bar.reach_percent(processed_percentage as i32);
 }
