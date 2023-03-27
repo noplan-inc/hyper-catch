@@ -53,9 +53,12 @@ async fn main() -> anyhow::Result<()> {
 
     let mut bar = Bar::new();
 
-    bar.set_job_title("Finding contracts...");
-
     for block_number in setting.from..setting.to + 1 {
+        bar.set_job_title(&format!(
+            "Finding contracts... ({} / {})",
+            block_number, setting.to
+        ));
+
         let found_contracts = getter.find(block_number).await;
 
         if !found_contracts.is_empty() {
