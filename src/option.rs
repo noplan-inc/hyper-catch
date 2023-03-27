@@ -1,3 +1,5 @@
+use serde::Deserialize;
+use serde::Serialize;
 use std::path::PathBuf;
 
 use clap::Parser;
@@ -13,11 +15,13 @@ pub struct CliOptions {
     pub verbose: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub enum OutputFormat {
     Json,
     Csv,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct NetworkConfig {
     // chain name
     pub name: String,

@@ -6,13 +6,26 @@ authors = ["serinuntius <wasab1gj@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/noplan-inc/hyper-catch"
 
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = { version = "3.2.22", features = ["derive", "env"]}
 ethers = "0.17.0"
-tokio = "1.21.1"
+tokio = { version = "1", features = ["full"] }
 serde_json = "1.0"
 serde = "1.0.145"
 anyhow = "1.0.65"
+hex = "0.4.3"
+ethers-contract = "1.0.0"
+ethers-core = "1.0.0"
+ethers-providers = "1.0.0"
+ethers-signers = "1.0.0"
+dotenv = "0.15.0"
+chrono = "0.4.23"
+tracing = "0.1"
+tracing-subscriber = { version="0.3", features = ["local-time"]}
+tracing-appender = "0.2"
+time = "0.3.17"
+toml = "0.5.10"
+progress = "0.2"
+
